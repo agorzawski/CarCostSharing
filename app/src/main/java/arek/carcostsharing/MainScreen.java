@@ -16,7 +16,6 @@ public class MainScreen extends AppCompatActivity {
     private static final double VALUE_PER_KM_BELOW_BORDER_DISTANCE = 0.1;
     private static final double VALUE_PER_KM_ABOVE_BORDER_DISTANCE = 0.05;
 
-
     private Button calculate;
 
     private EditText peopleInTrip;
@@ -28,12 +27,20 @@ public class MainScreen extends AppCompatActivity {
     private TextView pricePerCar;
     private TextView valuePerPerson;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_screen);
+        initializeComponents();
+        calculate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                calculateFromInputFields();
+            }
+        });
+    }
 
+    private void initializeComponents() {
         calculate = (Button) findViewById(R.id.calculate);
 
         peopleInTrip = (EditText) findViewById(R.id.nbOfPeople);
@@ -44,37 +51,31 @@ public class MainScreen extends AppCompatActivity {
         pricePerPerson = (TextView) findViewById(R.id.costPerPerson);
         pricePerCar = (TextView) findViewById(R.id.costPerCar);
         valuePerPerson = (TextView) findViewById(R.id.valuePerPerson);
-
-        calculate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                double distanceInKm = Double.valueOf(distance.getText().toString());
-                double valuePerPersonForDistance = getValueForDistance(distanceInKm);
-                valuePerPerson.setText(DECIMAL_FORMAT.format(valuePerPersonForDistance));
-
-                int nbOfPeopleInTrip = Integer.valueOf(peopleInTrip.getText().toString());
-
-                double totalValueForAllPeoples = nbOfPeopleInTrip * valuePerPersonForDistance;
-
-                double totalCars = Integer.valueOf(carsInTrip.getText().toString());
-                double additionalExpensPerCar = Double.valueOf(tollPerCar.getText().toString());
-
-                double totalCarExpenses = totalCars * additionalExpensPerCar;
-                double totalCost = totalCarExpenses + totalValueForAllPeoples;
-
-                double personShare = totalCost / (nbOfPeopleInTrip - 1);
-                double carShare = totalCost / totalCars;
-
-                pricePerPerson.setText(DECIMAL_FORMAT.format(personShare));
-                pricePerCar.setText(DECIMAL_FORMAT.format(carShare));
-
-            }
-        });
-
     }
 
-    public double getValueForDistance(double distance) {
+    private void calculateFromInputFields() {
+        double distanceInKm = Double.valueOf(distance.getText().toString());
+        double valuePerPersonForDistance = getValueForDistance(distanceInKm);
+        valuePerPerson.setText(DECIMAL_FORMAT.format(valuePerPersonForDistance));
+
+        int nbOfPeopleInTrip = Integer.valueOf(peopleInTrip.getText().toString());
+
+        double totalValueForAllPeoples = nbOfPeopleInTrip * valuePerPersonForDistance;
+
+        double totalCars = Integer.valueOf(carsInTrip.getText().toString());
+        double additionalExpensPerCar = Double.valueOf(tollPerCar.getText().toString());
+
+        double totalCarExpenses = totalCars * additionalExpensPerCar;
+        double totalCost = totalCarExpenses + totalValueForAllPeoples;
+
+        double personShare = totalCost / (nbOfPeopleInTrip - 1);
+        double carShare = totalCost / totalCars;
+
+        pricePerPerson.setText(DECIMAL_FORMAT.format(personShare));
+        pricePerCar.setText(DECIMAL_FORMAT.format(carShare));
+    }
+
+    private double getValueForDistance(double distance) {
         double value = 0;
         if (distance < DISTANCE_IN_KM_AT_WHICH_DIFFERENT_VALUE_PER_KM) {
             value = distance * VALUE_PER_KM_BELOW_BORDER_DISTANCE;
