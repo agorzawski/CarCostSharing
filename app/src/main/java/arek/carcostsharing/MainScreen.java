@@ -4,6 +4,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -27,6 +28,10 @@ public class MainScreen extends AppCompatActivity {
     private TextView pricePerCar;
     private TextView valuePerPerson;
 
+    private TextView commentOnPrice;
+
+    private CheckBox includeInstructor;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,16 +43,29 @@ public class MainScreen extends AppCompatActivity {
                 calculateFromInputFields();
             }
         });
-    }
 
+        includeInstructor.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (includeInstructor.isChecked()) {
+                    commentOnPrice.setText("(excluding chief)");
+                } else {
+                    commentOnPrice.setText("(including chief)");
+                }
+            }
+        });
+    }
     private void initializeComponents() {
         calculate = (Button) findViewById(R.id.calculate);
+
+        includeInstructor = (CheckBox) findViewById(R.id.calcWithoutInstructor);
 
         peopleInTrip = (EditText) findViewById(R.id.nbOfPeople);
         carsInTrip = (EditText) findViewById(R.id.numberOfCars);
         distance = (EditText) findViewById(R.id.totalDistance);
         tollPerCar = (EditText) findViewById(R.id.tollPerCar);
 
+        commentOnPrice = (TextView) findViewById(R.id.commentOnShare);
         pricePerPerson = (TextView) findViewById(R.id.costPerPerson);
         pricePerCar = (TextView) findViewById(R.id.costPerCar);
         valuePerPerson = (TextView) findViewById(R.id.valuePerPerson);
@@ -68,7 +86,9 @@ public class MainScreen extends AppCompatActivity {
         double totalCarExpenses = totalCars * additionalExpensPerCar;
         double totalCost = totalCarExpenses + totalValueForAllPeoples;
 
-        double personShare = totalCost / (nbOfPeopleInTrip - 1);
+        int reduction = includeInstructor.isChecked() ? 1 : 0;
+
+        double personShare = totalCost / (nbOfPeopleInTrip - reduction);
         double carShare = totalCost / totalCars;
 
         pricePerPerson.setText(DECIMAL_FORMAT.format(personShare));
